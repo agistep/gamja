@@ -1,5 +1,7 @@
 package io.agistep.event;
 
+import io.agistep.aggregator.IdUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,15 +28,15 @@ class ThreadLocalEventSeqHolder {
 	}
 
 	public void clear(Object aggregate) {
-		//TODO
-		changes.remove();
+		final long id = IdUtils.idOf(aggregate);
+		changes.get().remove(id);
 	}
 
-	long nextVersion(Long aggregateId) {
-		return getVersion(aggregateId)+1;
+	long nextSeq(Long aggregateId) {
+		return getSeq(aggregateId)+1;
 	}
 
-	long getVersion(Long aggregateId) {
+	long getSeq(Long aggregateId) {
 		return changes.get().getOrDefault(aggregateId, -1L);
 	}
 }
