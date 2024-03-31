@@ -1,5 +1,7 @@
 package io.agistep.event;
 
+import io.agistep.foo.Foo;
+import io.agistep.foo.FooCreated;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +11,7 @@ import java.util.List;
 import static io.agistep.event.test.EventFixtureBuilder.anEventWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ThreadLocalEventHolderTest {
+class ThreadLocalEventHolderTest extends EventApplySupport {
 
 
     private ThreadLocalEventHolder sut;
@@ -29,14 +31,7 @@ class ThreadLocalEventHolderTest {
     void occursTest() {
         long aggregateId = 1L;
         Object payload = new FooEventPayload();
-        sut.hold(Events.builder()
-                        .id(1L)
-                .name(payload.getClass().getName())
-                .seq(Events.INITIAL_SEQ)
-                .aggregateId(aggregateId)
-                .payload(payload)
-                .occurredAt(LocalDateTime.now())
-                .build());
+        sut.hold(EventMaker.make(1L, aggregateId, EventSource.INITIAL_SEQ, payload.getClass().getName(), LocalDateTime.now(), payload));
 
         List<Event> actual = sut.getEventAll();
         assertThat(actual).hasSize(1);
@@ -50,7 +45,7 @@ class ThreadLocalEventHolderTest {
     @Test
     void clear() {
         Foo aggregate = new Foo();
-        Events.reorganize(aggregate, anEventWith(new FooCreated()));
+        EventSource.replay(aggregate, anEventWith(new FooCreated()));
 
         sut.clear(aggregate);
 

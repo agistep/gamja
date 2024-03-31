@@ -10,8 +10,12 @@
 
 rootProject.name = 'gamja'
 
-include('identity')
+include('fixtures')
+
 include('core')
 include('storage')
+include('serializer')
+
 include('storage-jdbc')
+include('storage-csv')
 include('test-supports')

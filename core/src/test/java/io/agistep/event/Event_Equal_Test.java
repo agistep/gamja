@@ -9,30 +9,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("ClassNamingConvention")
 class Event_Equal_Test {
 
+    private record JsonPayloadTest(String value) { }
 
     @Test
     void equals() {
-        Event anEvent = Events.builder()
-                .id(1L)
-                .seq(0L)
 
-                .aggregateId(1L)
+        JsonPayloadTest test_anEvent = new JsonPayloadTest("Test anEvent");
+        Event anEvent = EventMaker.make(
+                1L,
+                1L,
+                0L,
+                test_anEvent.getClass().getName(),
+                LocalDateTime.of(2023,12,12,0,0),
+                test_anEvent
+        );
 
-                .name("TEST")
-                .payload("Hello ~~~")
-                .occurredAt(LocalDateTime.of(2023,12,12,0,0))
-                .build();
-
-        Event anEvent2 = Events.builder()
-                .id(1L)
-                .seq(0L)
-
-                .aggregateId(1L)
-
-                .name("TEST")
-                .payload("Hello ~~~")
-                .occurredAt(LocalDateTime.of(2023,12,12,0,0))
-                .build();
+        JsonPayloadTest test_anEvent2 = new JsonPayloadTest("Test anEvent");
+        Event anEvent2 = EventMaker.make(
+                1L,
+                1L,
+                0L,
+                test_anEvent2.getClass().getName(),
+                LocalDateTime.of(2023,12,12,0,0),
+                test_anEvent
+        );
 
         assertThat(anEvent).isEqualTo(anEvent2);
     }

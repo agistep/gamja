@@ -1,7 +1,7 @@
 package io.agistep.event.repository;
 
 import io.agistep.event.Event;
-import io.agistep.event.Events;
+import io.agistep.event.EventSource;
 import io.agistep.event.storages.EventStorage;
 
 import java.util.List;
@@ -15,6 +15,7 @@ public class SimpleAggregateRepository<AGG> implements AggregateRepository<AGG> 
     public SimpleAggregateRepository(AggregateInitializer<AGG> initializer, EventStorage storage) {
         this.storage = storage;
         this.initializer = initializer;
+        // TODO Seriazliation 선택하게끔??
     }
 
     @Override
@@ -25,11 +26,11 @@ public class SimpleAggregateRepository<AGG> implements AggregateRepository<AGG> 
 
     @Override
     public void save(AGG aggregate) {
-        List<Event> events = Events.getHoldEvents(aggregate);
+        List<Event> events = EventSource.getHoldEvents(aggregate);
 
         storage.save(events);
 
-        Events.clear(aggregate);
+        EventSource.clear(aggregate);
     }
 
 
@@ -42,7 +43,7 @@ public class SimpleAggregateRepository<AGG> implements AggregateRepository<AGG> 
         }
 
         AGG aggregate = initializer.initAgg();
-        Events.reorganize(aggregate, events.toArray(new Event[0]));
+        EventSource.replay(aggregate, events.toArray(new Event[0]));
         return Optional.of(aggregate);
     }
 
