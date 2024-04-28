@@ -14,7 +14,7 @@ import java.util.Objects;
 import static io.agistep.event.EventMaker.*;
 import static java.util.Collections.unmodifiableList;
 
-class JDBCEventStorage extends OptimisticLockingSupport {
+public class JDBCEventStorage extends OptimisticLockingSupport {
     static final String INSERT_DML = "INSERT INTO events" +
             "(id, seq, name, aggregateId, payload, occurredAt)" +
             "VALUES (?, ?, ?, ?, ?, ?)";
