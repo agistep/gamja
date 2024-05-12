@@ -6,19 +6,18 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import static io.agistep.config.GamjaConfig.GamjaConfigLoader.loadConfig;
 
 public class GamjaConfig {
-    private static final String CONFIG_FILE_PATH = "src/main/resources/gamja.yml";
+    static final String DEFAULT_CONFIG_CLASSPATH = "/gamja.yml";
     private final static Logger log = LoggerFactory.getLogger("GamjaConfig");
 
     private static GamjaConfigProperties properties;
 
     static {
-        properties = loadConfig(CONFIG_FILE_PATH);
+        properties = loadConfig(DEFAULT_CONFIG_CLASSPATH);
     }
 
     public static GamjaConfigProperties getProperties() {
@@ -26,9 +25,11 @@ public class GamjaConfig {
     }
 
     public static String get(String s) {
-        // 어디서 가져와야 할까?
 
-        GamjaConfigProperties properties = loadConfig("test.yml");
+        if (properties == null) {
+            throw new RuntimeException(); // todo: 구체적인 exception class
+        }
+
         if("core.basePackage".equals(s)) {
             return properties.getBasePackage();
         }
@@ -39,15 +40,10 @@ public class GamjaConfig {
     class GamjaConfigLoader {
 
         static GamjaConfigProperties loadConfig(String filePath) {
-            try {
+            Yaml yaml = new Yaml(new Constructor(GamjaConfigProperties.class, new LoaderOptions()));
 
-                Yaml yaml = new Yaml(new Constructor(GamjaConfigProperties.class, new LoaderOptions()));
-                FileInputStream inputStream = new FileInputStream(filePath);
-                return yaml.load(inputStream);
-            } catch (FileNotFoundException e) {
-                log.error("Config file not found: {}", filePath);
-                return new GamjaConfigProperties();
-            }
+            InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream(filePath);
+            return yaml.load(systemResourceAsStream);
         }
     }
 }
