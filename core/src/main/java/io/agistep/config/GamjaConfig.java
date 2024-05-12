@@ -26,7 +26,9 @@ public class GamjaConfig {
     }
 
     public static String get(String s) {
-        GamjaConfigProperties properties = GamjaConfig.GamjaConfigLoader.loadConfig("src/test/resources/test.yml");
+        // 어디서 가져와야 할까?
+
+        GamjaConfigProperties properties = loadConfig("test.yml");
         if("core.basePackage".equals(s)) {
             return properties.getBasePackage();
         }
@@ -38,6 +40,7 @@ public class GamjaConfig {
 
         static GamjaConfigProperties loadConfig(String filePath) {
             try {
+
                 Yaml yaml = new Yaml(new Constructor(GamjaConfigProperties.class, new LoaderOptions()));
                 FileInputStream inputStream = new FileInputStream(filePath);
                 return yaml.load(inputStream);
