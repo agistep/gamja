@@ -25,6 +25,15 @@ public class GamjaConfig {
         return properties;
     }
 
+    public static String get(String s) {
+        GamjaConfigProperties properties = GamjaConfig.GamjaConfigLoader.loadConfig("src/test/resources/test.yml");
+        if("core.basePackage".equals(s)) {
+            return properties.getBasePackage();
+        }
+
+        return null;
+    }
+
     class GamjaConfigLoader {
 
         static GamjaConfigProperties loadConfig(String filePath) {

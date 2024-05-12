@@ -8,8 +8,13 @@ class GamjaConfigTest {
 
     @Test
     void loadConfig() {
-        var properties = GamjaConfig.GamjaConfigLoader.loadConfig("src/test/resources/test.yml");
+        // TODO 설정을 어디에서 찾는가?
+        // TODO 설정이 없으면 어떻게 동작가?
+        // TODO Refact
 
-        assertThat(properties.getBasePackage()).isEqualTo("io.agistep");
+        // GamjaConfig 는 왜 어디서 사용되는가?
+
+        assertThat(GamjaConfig.get("core.basePackage")).isEqualTo("io.agistep");
+
     }
 }
