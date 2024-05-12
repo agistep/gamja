@@ -19,7 +19,7 @@ class GamjaConfigTest {
     @Test
     @DisplayName("gamja.yml이 없으면 예외를 던진다 ")
     void throwExceptionWhenNoConfig() {
-        var resource = GamjaConfig.class.getResource(GamjaConfig.DEFAULT_CONFIG_CLASSPATH);
+        var resource = GamjaConfig.class.getResource("/notgamja.xml");
         assertThat(resource).isNull();
         assertThatThrownBy(() -> GamjaConfig.get("core.basePackage")); // todo: exception type test
     }
@@ -42,7 +42,7 @@ class GamjaConfigTest {
 
         Yaml yaml = new Yaml(new Constructor(GamjaConfigProperties.class, new LoaderOptions()));
 
-        InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("/gamja.yml");
+        InputStream systemResourceAsStream =GamjaConfig.class.getResourceAsStream(GamjaConfig.DEFAULT_CONFIG_CLASSPATH);
         yaml.load(systemResourceAsStream);
     }
 }

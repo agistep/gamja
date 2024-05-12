@@ -39,10 +39,10 @@ public class GamjaConfig {
 
     class GamjaConfigLoader {
 
-        static GamjaConfigProperties loadConfig(String filePath) {
+        static GamjaConfigProperties loadConfig(String classpath) {
             Yaml yaml = new Yaml(new Constructor(GamjaConfigProperties.class, new LoaderOptions()));
 
-            InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream(filePath);
+            InputStream systemResourceAsStream = GamjaConfig.class.getResourceAsStream(classpath);
             return yaml.load(systemResourceAsStream);
         }
     }
