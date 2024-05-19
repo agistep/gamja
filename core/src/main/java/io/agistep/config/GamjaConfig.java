@@ -11,7 +11,7 @@ import java.io.InputStream;
 import static io.agistep.config.GamjaConfig.GamjaConfigLoader.loadConfig;
 
 public class GamjaConfig {
-    static final String DEFAULT_CONFIG_CLASSPATH = "/gamja.yml";
+    static final String DEFAULT_CONFIG_CLASSPATH = "/gamja-default.yml";
     private final static Logger log = LoggerFactory.getLogger("GamjaConfig");
 
     private static GamjaConfigProperties properties;

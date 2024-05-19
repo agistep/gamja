@@ -2,16 +2,11 @@ package io.agistep.config;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.InputStream;
-
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class GamjaConfigTest {
+class CustomConfigTest {
 
     // TODO : gamja.core 는 기본적인 설정을 gamja-default.yml 에서 로드함
 
@@ -23,11 +18,22 @@ class GamjaConfigTest {
 
 
     @Test
-    @DisplayName("gamja.yml이 없으면 예외를 던진다 ")
-    void throwExceptionWhenNoConfig() {
+    @DisplayName("사용자 정의 설정 ")
+    void customConfig() {
         // 나는 커스텀 설정을 classpath:/foo.yml
 
-        var resource = GamjaConfig.class.getResource("/foo.yml");
+        var resource = GamjaConfig.class.getResource("/foo.xml");
+        assertThat(resource).isNull();
+
+        assertThatThrownBy(() -> GamjaConfig.get("core.basePackage")); // todo: exception type test
+    }
+
+    @Test
+    @DisplayName("사용자 정의 설정 ")
+    void aaaaa() {
+        // 나는 커스텀 설정을 classpath:/bar.yml
+
+        var resource = GamjaConfig.class.getResource("/bar.xml");
         assertThat(resource).isNull();
 
         assertThatThrownBy(() -> GamjaConfig.get("core.basePackage")); // todo: exception type test
