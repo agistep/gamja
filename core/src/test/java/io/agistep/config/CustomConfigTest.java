@@ -3,8 +3,9 @@ package io.agistep.config;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.util.Properties;
+
+import static org.assertj.core.api.Assertions.*;
 
 class CustomConfigTest {
 
@@ -18,25 +19,23 @@ class CustomConfigTest {
 
 
     @Test
-    @DisplayName("사용자 정의 설정 ")
+    @DisplayName("사용자 정의 설정 파일이 존재하지 않는 경우에는 에러를 발생한다.")
     void customConfig() {
-        // 나는 커스텀 설정을 classpath:/foo.yml
+        // 나는 커스텀 설정을 classpath:/gamja.yml 가 싫고 foo 로 등록해놓고 resource에 foo를 등록하지 않은 케이스에 에러 발생
+        //config path 등록 메커니즘이 존재한다고 가정
+        System.setProperty("custom.config.path", "/foo.yml");
 
-        var resource = GamjaConfig.class.getResource("/foo.xml");
-        assertThat(resource).isNull();
-
-        assertThatThrownBy(() -> GamjaConfig.get("core.basePackage")); // todo: exception type test
+        assertThatThrownBy(() -> GamjaConfig.get("core.basePackage"))
+                .isInstanceOf(ExceptionInInitializerError.class)
+                .hasCauseInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("사용자 정의 설정 ")
     void aaaaa() {
-        // 나는 커스텀 설정을 classpath:/bar.yml
+        System.setProperty("custom.config.path", "/bar.yml");
 
-        var resource = GamjaConfig.class.getResource("/bar.xml");
-        assertThat(resource).isNull();
-
-        assertThatThrownBy(() -> GamjaConfig.get("core.basePackage")); // todo: exception type test
+        assertThat(GamjaConfig.get("core.basePackage")).isEqualTo("bar");
     }
 
 }

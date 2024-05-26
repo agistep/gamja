@@ -9,7 +9,7 @@ public class BasePackageLoader {
 
 
     public static String load() {
-        var basePackage = GamjaConfig.getProperties().getBasePackage();
+        var basePackage = GamjaConfig.getProperties().getCore().getBasePackage();
 
         if (basePackage == null) {
             basePackage = System.getProperty(BASE_PACKAGE_PROPERTY);

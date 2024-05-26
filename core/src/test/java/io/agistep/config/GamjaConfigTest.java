@@ -26,8 +26,9 @@ class GamjaConfigTest {
     @DisplayName("gamja.yml이 없으면 예외를 던진다 ")
     void throwExceptionWhenNoConfig() {
         // 나는 커스텀 설정을 classpath:/foo.yml
-
-        var resource = GamjaConfig.class.getResource("/foo.yml");
+        // foo 인지 bar 인지 어떻게 알아?
+        // Rule 등록 메카니즘
+        var resource = GamjaConfig.class.getResource("/gamja.yml");
         assertThat(resource).isNull();
 
         assertThatThrownBy(() -> GamjaConfig.get("core.basePackage")); // todo: exception type test

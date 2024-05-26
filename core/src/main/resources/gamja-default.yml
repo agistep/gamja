@@ -1,1 +1,5 @@
-basePackage: io.agistep
+core:
+  basePackage: io.agistep
+custom:
+  config:
+    path: gamja.yml

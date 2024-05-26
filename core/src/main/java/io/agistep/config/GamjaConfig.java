@@ -7,6 +7,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.InputStream;
+import java.util.Objects;
 
 import static io.agistep.config.GamjaConfig.GamjaConfigLoader.loadConfig;
 
@@ -17,7 +18,12 @@ public class GamjaConfig {
     private static GamjaConfigProperties properties;
 
     static {
-        properties = loadConfig(DEFAULT_CONFIG_CLASSPATH);
+        if (!System.getProperty("custom.config.path").isEmpty()) {
+            String path = System.getProperty("custom.config.path");
+            properties = loadConfig(path);
+        } else {
+            properties = loadConfig(DEFAULT_CONFIG_CLASSPATH);
+        }
     }
 
     public static GamjaConfigProperties getProperties() {
@@ -31,18 +37,25 @@ public class GamjaConfig {
         }
 
         if("core.basePackage".equals(s)) {
-            return properties.getBasePackage();
+            return properties.getCore().getBasePackage();
+        }
+
+        if ("custom.config.path".equals(s)) {
+            return properties.getCustom().getConfig().getPath();
         }
 
         return null;
     }
 
-    class GamjaConfigLoader {
+    static class GamjaConfigLoader {
 
         static GamjaConfigProperties loadConfig(String classpath) {
             Yaml yaml = new Yaml(new Constructor(GamjaConfigProperties.class, new LoaderOptions()));
 
             InputStream systemResourceAsStream = GamjaConfig.class.getResourceAsStream(classpath);
+            if (Objects.isNull(systemResourceAsStream)) {
+                throw new IllegalArgumentException();
+            }
             return yaml.load(systemResourceAsStream);
         }
     }
