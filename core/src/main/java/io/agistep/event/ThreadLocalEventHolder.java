@@ -9,13 +9,13 @@ import static java.lang.ThreadLocal.withInitial;
 import static java.util.Collections.synchronizedList;
 import static java.util.Collections.unmodifiableList;
 
-class ThreadLocalEventHolder implements EventHolder {
+public class ThreadLocalEventHolder implements EventHolder {
 
 	private final static ThreadLocal<List<Event>> changes = withInitial(() -> synchronizedList(new ArrayList<>()));
 	private final static ThreadLocal<Map<Long,Long>> changes2 = withInitial(HashMap::new);
 
 
-	static EventHolder instance() {
+	public static EventHolder instance() {
 		return new ThreadLocalEventHolder();
 	}
 
