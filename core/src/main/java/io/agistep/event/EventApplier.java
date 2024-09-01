@@ -14,6 +14,11 @@ final class EventApplier {
         hold(anEvent);
     }
 
+    static void apply2(Object aggregate, Event anEvent) {
+        replay(aggregate, anEvent);
+        hold(anEvent);
+    }
+
     private static void hold(Event anEvent) {
         Optional.ofNullable(EventSource.holdListener).ifPresent(listen->listen.beforeHold(anEvent));
         ThreadLocalEventHolder.instance().hold(anEvent);
@@ -22,7 +27,7 @@ final class EventApplier {
 
     private static void replay(Object aggregate, Event anEvent) {
         Optional.ofNullable(EventSource.replayListener).ifPresent (listen-> listen.beforeReplay(aggregate, anEvent));
-        EventReplayer.replay(aggregate, anEvent);
+        EventReplayer.replay(aggregate, anEvent); // 아무이벤트도 반영되지 않은 aggregate
         Optional.ofNullable(EventSource.replayListener).ifPresent (listen-> listen.afterReplay(aggregate, anEvent));
     }
 

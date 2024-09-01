@@ -11,7 +11,7 @@ import static org.valid4j.Validation.validate;
 
 public class EventMaker {
 
-    static Event make(Object aggregate, Object payload) {
+    public static Event make(Object aggregate, Object payload) {
         final long eventId = IdUtils.gen();
         final long aggregateId;
         final long nextSeq;

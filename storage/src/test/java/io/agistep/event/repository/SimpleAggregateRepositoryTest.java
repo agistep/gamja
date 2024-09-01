@@ -1,13 +1,8 @@
 package io.agistep.event.repository;
 
 import io.agistep.aggregator.AggregateId;
-import io.agistep.event.Event;
-import io.agistep.event.EventHandler;
-import io.agistep.event.EventSource;
-import io.agistep.event.ThreadLocalEventHolder;
+import io.agistep.event.*;
 import io.agistep.event.storages.MapEventStorage;
-import io.agistep.foo.FooCreated;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,12 +26,12 @@ class SimpleAggregateRepositoryTest {
         TodoTitle todoTitle = new TodoTitle();
 
         commandProcessor.addListener(todoTitle);
-        long createdAggregateId = commandProcessor.process(new CreateTodoCommand("title"));
-        assertThat(todoTitle.getTitle()).isEqualTo("title");
+        long createdAggregateId = commandProcessor.process(new CreateTodoCommand("title2"));
+        assertThat(todoTitle.getTitle()).isEqualTo("title2");
         assertThat(createdAggregateId).isGreaterThan(0);
 
-//        commandProcessor.process(createdAggregateId, new UpdateTodoCommand("title2"));
-//        assertThat(todoTitle.getTitle()).isEqualTo("title2");
+//        commandProcessor.process(createdAggregateId, new UpdateTodoCommand("title3"));
+//        assertThat(todoTitle.getTitle()).isEqualTo("title3");
 
     }
 
@@ -54,18 +49,35 @@ class SimpleAggregateRepositoryTest {
 
     private static class AggregateRepository<T> {
 
-        public AggregateRepository(Class<T> aggregate, MapEventStorage p1) {
+        private final Class<T> aggregate;
+        private final MapEventStorage eventStorage;
+
+        public AggregateRepository(Class<T> aggregate, MapEventStorage eventStorage) {
+            this.aggregate = aggregate;
+            this.eventStorage = eventStorage;
         }
 
         public long save(CreateTodoCommand command) {
+            String title = command.getTitle();
             TodoAggregate aggregate = new TodoAggregate();
-            EventSource.apply(aggregate, new TodoCreatedEvent());
-            return 1;
+            TodoCreatedEvent event = new TodoCreatedEvent(title);
+            Event makedEvent = EventMaker.make(aggregate, event);
+            eventStorage.save(makedEvent);
+            EventSource.apply2(aggregate, makedEvent);
+            return makedEvent.getAggregateId();
         }
-
 
     }
     private static class TodoCreatedEvent {
+        private final String title;
+
+        public TodoCreatedEvent(String title) {
+            this.title = title;
+        }
+
+        public String getTitle() {
+            return title;
+        }
     }
 
     private static class TodoAggregate {
@@ -74,8 +86,14 @@ class SimpleAggregateRepositoryTest {
         long id;
 
         @EventHandler(payload = TodoCreatedEvent.class)
-        public void eventHandler(TodoCreatedEvent event){
+        public void eventHandler(Event event){
+            long aggregateId = event.getAggregateId();
+            System.out.println("Hello world>> " + aggregateId);
+            this.id = aggregateId;
+        }
 
+        public long getId() {
+            return id;
         }
     }
 
@@ -88,19 +106,24 @@ class SimpleAggregateRepositoryTest {
             this.aggregateRepository = aggregateRepository;
         }
 
-        public long process(CreateTodoCommand command) {
-            long save = aggregateRepository.save(command);
-            List<Event> events = ThreadLocalEventHolder.instance().getEventAll();
-            for (Event event : events) {
-                todoTitle.setTitle("title");
-            }
-
-
-            return save;
-        }
-
         public void addListener(TodoTitle todoTitle) {
             this.todoTitle = todoTitle;
+        }
+
+        public long process(CreateTodoCommand command) {
+            long aggregateId = aggregateRepository.save(command);
+            List<Event> events = ThreadLocalEventHolder.instance().getEventAll();
+            for (Event event : events) {
+                Object payload = event.getPayload();
+                if (payload instanceof TodoCreatedEvent todoCreatedEvent) {
+                    String title = todoCreatedEvent.getTitle();
+                    todoTitle.setTitle(title);
+                }
+            }
+            return aggregateId;
+        }
+
+        public void process(long createdAggregateId, UpdateTodoCommand title2) {
         }
     }
 
@@ -108,8 +131,14 @@ class SimpleAggregateRepositoryTest {
     }
 
     private static class CreateTodoCommand implements TodoCommand {
-        public CreateTodoCommand(String title) {
+        private final String title;
 
+        public CreateTodoCommand(String title) {
+            this.title = title;
+        }
+
+        public String getTitle() {
+            return title;
         }
     }
 

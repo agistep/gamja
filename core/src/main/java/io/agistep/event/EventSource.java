@@ -23,6 +23,10 @@ public final class EventSource {
         EventApplier.apply(aggregate, payload);
     }
 
+    public static void apply2(Object aggregate, Event payload) {
+        EventApplier.apply2(aggregate, payload);
+    }
+
     public static List<Event> getHoldEvents(Object aggregate) {
         return ThreadLocalEventHolder.instance().getEvents(aggregate);
     }
