@@ -45,7 +45,9 @@ public final class EventSource {
 
     public static void replay(Object aggregate, Event[] events) {
         Arrays.stream(events)
-                .forEach(e -> EventSource.replay(aggregate, e));
+                .forEach(e -> {
+                    EventSource.replay(aggregate, e);
+                });
     }
 
     public static void clearAll() {
