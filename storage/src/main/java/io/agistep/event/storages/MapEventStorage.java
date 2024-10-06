@@ -51,4 +51,8 @@ public class MapEventStorage extends OptimisticLockingSupport {
     public void addDeSerializer(Deserializer deserializer) {
         throw new UnsupportedOperationException("MapEventStorage not supported DeSerializer");
     }
+
+    public Map<Long, List<Event>> getEventMap() {
+        return this.events;
+    }
 }
