@@ -1,6 +1,6 @@
 package io.agistep.event.repository;
 
-public interface CommandProcessor<COMMAND extends Command<? extends Aggregate>> {
+interface CommandProcessor<AGG extends Aggregate, COMMAND extends Command<AGG>> {
 
     long process(COMMAND command);
 }

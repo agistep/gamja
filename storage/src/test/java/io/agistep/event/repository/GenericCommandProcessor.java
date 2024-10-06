@@ -5,17 +5,17 @@ import io.agistep.event.storages.MapEventStorage;
 
 import java.time.LocalDateTime;
 
-class TodoCommandProcessor implements CommandProcessor<TodoCommand> {
+class GenericCommandProcessor<AGG extends Aggregate, COMMAND extends Command<AGG>> implements CommandProcessor<AGG, COMMAND> {
 
     private final MapEventStorage eventStore;
 
-    public TodoCommandProcessor(Class<TodoCommand> todoCommandClass, MapEventStorage eventStore) {
+    public GenericCommandProcessor(Class<Command<AGG>> todoCommandClass, MapEventStorage eventStore) {
         // todo >
         this.eventStore = eventStore;
     }
 
     @Override
-    public long process(TodoCommand command) {
+    public long process(COMMAND command) {
         Event event = new Event() {
             @Override
             public long getId() {
@@ -50,4 +50,5 @@ class TodoCommandProcessor implements CommandProcessor<TodoCommand> {
         eventStore.save(event);
         return event.getAggregateId();
     }
+
 }

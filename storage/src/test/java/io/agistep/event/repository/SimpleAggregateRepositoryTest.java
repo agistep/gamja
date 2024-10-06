@@ -22,7 +22,8 @@ class SimpleAggregateRepositoryTest {
 
     @Test
     void xxx() {
-        CommandProcessor<TodoCommand> commandProcessor = new TodoCommandProcessor(TodoCommand.class, eventStore);
+
+        CommandProcessor<TodoAggregate, TodoCommand> commandProcessor = new GenericCommandProcessor<>(TodoCommand.class, eventStore);
         long createdAggregateId = commandProcessor.process(new CreateTodoCommand("title"));
 
 
