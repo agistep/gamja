@@ -2,9 +2,9 @@ package io.agistep.event.repository;
 
 import io.agistep.event.Event;
 import io.agistep.event.storages.MapEventStorage;
-import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.time.LocalDateTime;
 
 class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor<AGG> {
@@ -18,7 +18,9 @@ class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor
 
     @Override
     public long process(Command<AGG> command) {
-        Class<AGG> aggClass = getAggregateClassBy(command);
+        Class<?> commandClass = command.getClass();
+        ParameterizedType commandInterface = (ParameterizedType) commandClass.getGenericInterfaces()[0];
+        Class<AGG> aggClass = (Class<AGG>) commandInterface.getActualTypeArguments()[0];
         Method m = find(aggClass, command);
         if (m == null) {
             throw new RuntimeException(String.format("%s를 처리할 핸들러가 %s에 존재하지 않습니다.",
