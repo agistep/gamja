@@ -1,12 +1,11 @@
 package io.agistep.event.repository;
 
+import io.agistep.aggregator.AggregateId;
 import io.agistep.event.Event;
 import io.agistep.event.storages.MapEventStorage;
-import io.agistep.foo.Foo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 
@@ -40,7 +39,7 @@ class SimpleAggregateRepositoryTest {
     }
 
     @Test
-    void xxxx() {
+    void findAggregateClassTest() {
         CommandProcessor<Foo> commandProcessor = new GenericCommandProcessor<>(eventStore);
 
         assertThatThrownBy(() -> commandProcessor.process(new CreateFooCommand()))
@@ -55,18 +54,67 @@ class SimpleAggregateRepositoryTest {
         long id = commandProcessor.process(new CreateFooCommand());
 
         List<Event> events = eventStore.findByAggregate(id);
-        assertThat(events.get(0).getAggregateId()).isEqualTo(id);
-        assertThat(events.get(0).getPayload()).isNotNull();
-        assertThat(events.get(0).getName()).isEqualTo(events.get(0).getPayload().getClass().getName());
+        assertThat(events.get(0).getName()).isEqualTo(FooCreatedEvent.class.getName());
     }
+
+    @Test
+    void name() {
+        CommandProcessor<Foo> commandProcessor = new GenericCommandProcessor<>(eventStore);
+        long id = commandProcessor.process(new CreateFooCommand());
+
+        commandProcessor.process(id, new EditFooCommand());
+
+        List<Event> events = eventStore.findByAggregate(id);
+        // TODO 다음 seq 알 수 없어 OptimisticLockingException 발생
+        assertThat(events.get(0).getName()).isEqualTo(FooCreatedEvent.class.getName());
+        assertThat(events.get(1).getName()).isEqualTo(FooEditedEvent.class.getName());
+    }
+    //TODO 테스트 케이스를 보고 앞으로 무엇을 할지를 고민
 
     static class Foo implements Aggregate {
 
+        @AggregateId
+        long id;
 
+        FooCreatedEvent doProcess(CreateFooCommand command) {
+            return new FooCreatedEvent();
+        }
+
+        FooEditedEvent doProcess(EditFooCommand command) {
+            return new FooEditedEvent();
+        }
+
+
+
+    }
+
+    public static final class FooCreatedEvent {
+        public FooCreatedEvent() {
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj == this || obj != null && obj.getClass() == this.getClass();
+        }
+
+        @Override
+        public int hashCode() {
+            return 1;
+        }
+
+        @Override
+        public String toString() {
+            return "FooCreatedEvent[]";
+        }
     }
 
     static class CreateFooCommand implements Command<Foo> {
     }
 
 
+    static class EditFooCommand implements Command<Foo> {
+    }
+
+    public static final class FooEditedEvent {
+    }
 }

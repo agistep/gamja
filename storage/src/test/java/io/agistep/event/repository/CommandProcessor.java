@@ -8,4 +8,6 @@ interface CommandProcessor<AGG extends Aggregate> {
      * @return id affected by command
      */
     long process(Command<AGG> command);
+
+    long process(long id, Command<AGG> command);
 }
