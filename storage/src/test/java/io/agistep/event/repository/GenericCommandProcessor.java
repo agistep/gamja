@@ -7,8 +7,8 @@ import io.agistep.event.storages.MapEventStorage;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor<AGG> {
 
@@ -16,7 +16,6 @@ class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor
     private final String doProcess = "doProcess"; //TODO doProcess 를 어떻게 강제할 수 있지?
 
     public GenericCommandProcessor(MapEventStorage eventStore) {
-        // todo >
         this.eventStore = eventStore;
     }
 
@@ -30,7 +29,7 @@ class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor
             throw new RuntimeException(String.format("%s를 처리할 핸들러가 %s에 존재하지 않습니다.",
                     command.getClass().getSimpleName(), aggClass.getSimpleName()));
         }
-        Object obj = null;
+        Object obj;
         try {
             obj = aggClass.getDeclaredConstructor().newInstance();
             Object invoke = m.invoke(obj, command);
@@ -52,6 +51,7 @@ class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor
         ParameterizedType commandInterface = (ParameterizedType) commandClass.getGenericInterfaces()[0];
         Class<AGG> aggClass = (Class<AGG>) commandInterface.getActualTypeArguments()[0];
         Method m = find(aggClass, command);
+
         if (m == null) {
             throw new RuntimeException(String.format("%s를 처리할 핸들러가 %s에 존재하지 않습니다.",
                     command.getClass().getSimpleName(), aggClass.getSimpleName()));
@@ -60,23 +60,17 @@ class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor
         try {
             AGG obj = aggClass.getDeclaredConstructor().newInstance();
 
+            List<Event> byAggregate = eventStore.findByAggregate(aggregateId); //TODO if events in DB
             Object invoke = m.invoke(obj, command);
             Event event = EventMaker.make(obj, invoke);
-            eventStore.save(event);
+            byAggregate.add(event);
+
+            eventStore.save(byAggregate);
             return event.getAggregateId();
         } catch (InvocationTargetException | IllegalAccessException | InstantiationException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
-
-    private static <T> Class<T> getClassOf(T[] array) {
-        Class<? extends Object[]> aClass = array.getClass();
-        Class<?> componentType = aClass.getComponentType();
-        //noinspection unchecked
-        return (Class<T>) componentType;
-    }
-
-
 
     private Method find(Class<AGG> aggClass, Command<AGG> command) {
         Method[] methods = aggClass.getDeclaredMethods();
@@ -84,10 +78,5 @@ class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor
                 .filter(method -> doProcess.equals(method.getName()) && method.getParameterTypes()[0].equals(command.getClass()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Not found valid Command method"));
-    }
-
-    @SafeVarargs
-    private Class<AGG> getAggregateClassBy(Command<AGG> command, AGG ... agg) {
-        return getClassOf(agg);
     }
 }
