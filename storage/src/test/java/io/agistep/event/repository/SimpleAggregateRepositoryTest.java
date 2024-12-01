@@ -28,8 +28,8 @@ class SimpleAggregateRepositoryTest {
     void findAggregateClassTest() {
         CommandProcessor<FooAggregate> commandProcessor = new GenericCommandProcessor<>(eventStore);
 
-        assertThatThrownBy(() -> commandProcessor.process(new CreateFooCommand()))
-                .hasMessageContaining("CreateFooCommand를 처리할 핸들러가 Foo에 존재하지 않습니다.");
+        assertThatThrownBy(() -> commandProcessor.process(new NoneEventFooCommand()))
+                .hasMessageContaining("NoneEventFooCommand를 처리할 핸들러가 FooAggregate에 존재하지 않습니다.");
     }
 
     @Test
@@ -73,21 +73,6 @@ class SimpleAggregateRepositoryTest {
     public static final class FooCreatedEvent {
         public FooCreatedEvent() {
         }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj == this || obj != null && obj.getClass() == this.getClass();
-        }
-
-        @Override
-        public int hashCode() {
-            return 1;
-        }
-
-        @Override
-        public String toString() {
-            return "FooCreatedEvent[]";
-        }
     }
 
     static class CreateFooCommand implements Command<FooAggregate> {
@@ -95,6 +80,9 @@ class SimpleAggregateRepositoryTest {
 
 
     static class EditFooCommand implements Command<FooAggregate> {
+    }
+
+    static class NoneEventFooCommand implements Command<FooAggregate> {
     }
 
     public static final class FooEditedEvent {

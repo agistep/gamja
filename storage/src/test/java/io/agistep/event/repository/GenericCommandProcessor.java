@@ -14,7 +14,6 @@ class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor
 
     private final MapEventStorage eventStore;
     private final String doProcess = "doProcess"; //TODO doProcess 를 어떻게 강제할 수 있지?
-
     public GenericCommandProcessor(MapEventStorage eventStore) {
         this.eventStore = eventStore;
     }
@@ -77,6 +76,6 @@ class GenericCommandProcessor<AGG extends Aggregate> implements CommandProcessor
         return Arrays.stream(methods)
                 .filter(method -> doProcess.equals(method.getName()) && method.getParameterTypes()[0].equals(command.getClass()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Not found valid Command method"));
+                .orElse(null);
     }
 }
